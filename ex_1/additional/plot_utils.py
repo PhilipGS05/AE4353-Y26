@@ -16,13 +16,15 @@ def plot_multiple_sample_predictions(model: nn.Module, val_set: Dataset, num_sam
         num_samples (int): Number of trajectories to plot (default: 4).
     """
     model.eval()
+    device = next(model.parameters()).device
     total = len(val_set)
     indices = torch.linspace(0, total - 1, steps=num_samples).int().tolist()
 
     with torch.no_grad():
         for i, idx in enumerate(indices):
             x_traj, u_true = val_set[idx]
-            u_pred = model(x_traj)
+            u_pred = model(x_traj.to(device)).cpu()
+            u_true = u_true.cpu()
 
             time = range(len(x_traj))
             fig, axs = plt.subplots(2, 1, figsize=(6, 4), sharex=True)
